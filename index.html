@@ -4,6 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ゴルフ交通費割り勘</title>
+
+  <!-- PWA: マニフェスト -->
+  <link rel="manifest" href="./manifest.json">
+
+  <!-- PWA: テーマカラー（Android Chrome のアドレスバー色） -->
+  <meta name="theme-color" content="#10b981">
+
+  <!-- PWA: iOS Safari 向け設定 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ゴルフ割り勘">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <style>
     /* ベースリセットとスマホ向け基本スタイル */
     *, *::before, *::after {
@@ -613,7 +625,7 @@
               <option value="__new__">＋ 新しいメンバー</option>
               <option value="__manage__">メンバー管理...</option>
             </select>
-            <input type="text" class="inp-name" list="member-name-list-${i}" placeholder="例：けんた" autocomplete="off">
+            <input type="text" class="inp-name" list="member-name-list-${i}" placeholder="名前を入力" autocomplete="off">
             <datalist id="member-name-list-${i}">
               ${memberProfiles.map(p => `<option value="${p.name}"></option>`).join('')}
             </datalist>
@@ -645,10 +657,10 @@
 
       const saved = savedMembers[i] || {};
       row.querySelector('.inp-name').value = typeof saved.name === 'string' ? saved.name : '';
-      row.querySelector('.inp-transit').value = Number.isFinite(saved.transit) ? String(saved.transit) : '';
-      row.querySelector('.inp-car').value = Number.isFinite(saved.car) ? String(saved.car) : '';
-      row.querySelector('.inp-other-pay').value = Number.isFinite(saved.otherPay) ? String(saved.otherPay) : '';
-      row.querySelector('.inp-other-recv').value = Number.isFinite(saved.otherRecv) ? String(saved.otherRecv) : '';
+      row.querySelector('.inp-transit').value = (Number.isFinite(saved.transit) && saved.transit > 0) ? String(saved.transit) : '';
+      row.querySelector('.inp-car').value = (Number.isFinite(saved.car) && saved.car > 0) ? String(saved.car) : '';
+      row.querySelector('.inp-other-pay').value = (Number.isFinite(saved.otherPay) && saved.otherPay > 0) ? String(saved.otherPay) : '';
+      row.querySelector('.inp-other-recv').value = (Number.isFinite(saved.otherRecv) && saved.otherRecv > 0) ? String(saved.otherRecv) : '';
       const matched = memberProfiles.find(p => p.name === row.querySelector('.inp-name').value.trim());
       row.querySelector('.inp-name-select').value = matched ? matched.id : '__new__';
       // LocalStorage 復元時は other が未定義なので、その他欄は空欄で開始される
@@ -1170,6 +1182,18 @@
     buildMemberRows(restored.count, restored.members);
   } else {
     buildMemberRows(4);
+  }
+
+  // ─── Service Worker 登録（PWA オフライン対応） ───────────────
+  // file:// で直接開いた場合は登録しない（https: または http: のときのみ登録）
+  // データはブラウザのローカル領域のみに保持され、外部送信は一切しない。
+  if ('serviceWorker' in navigator &&
+      (location.protocol === 'https:' || location.protocol === 'http:')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(() => console.log('[SW] 登録完了'))
+        .catch((err) => console.warn('[SW] 登録失敗:', err));
+    });
   }
 </script>
 </body>
