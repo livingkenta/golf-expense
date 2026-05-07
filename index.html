@@ -497,6 +497,191 @@
       font-size: 0.9rem;
       padding: 12px 0;
     }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .round-list-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .round-create-btn {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      background: #2d6a4f;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .round-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .round-item {
+      width: 100%;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px;
+      background: #fff;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .round-item-date {
+      font-size: 0.8rem;
+      color: #5f6c7b;
+      margin-bottom: 4px;
+    }
+
+    .round-item-title {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #1f2937;
+      margin-bottom: 6px;
+    }
+
+    .round-item-meta {
+      font-size: 0.85rem;
+      color: #4b5563;
+    }
+
+    .round-empty {
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.9rem;
+      color: #6b7280;
+      background: #f8fafc;
+    }
+
+    .list-footer {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .link-btn {
+      border: none;
+      background: transparent;
+      color: #2d6a4f;
+      font-size: 0.92rem;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .back-btn {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #64748b;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .round-title-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .round-title-display {
+      display: block;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #2d6a4f;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: text;
+    }
+
+    .round-title-input {
+      width: 100%;
+      display: none;
+      border: 1px solid #9ca3af;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    .line-share-btn {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 12px;
+      background: #06c755;
+      color: #fff;
+      font-size: 1.02rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .danger-zone {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .danger-btn {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      padding: 13px;
+      background: #c0392b;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .confirm-actions button {
+      flex: 1;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #delete-modal-cancel {
+      background: #6b7280;
+    }
+
+    #delete-modal-confirm {
+      background: #c0392b;
+    }
   </style>
 </head>
 <body>
@@ -504,73 +689,85 @@
   <h1>⛳ ゴルフ交通費割り勘</h1>
   <div id="sync-status" class="loading">読み込み中...</div>
 
-  <!-- 人数選択 -->
-  <div class="card">
-    <div class="card-title">人数</div>
-    <div class="count-selector">
-      <label>
-        <input type="radio" name="count" value="3" id="count3">
-        <span>3人</span>
-      </label>
-      <label>
-        <input type="radio" name="count" value="4" id="count4" checked>
-        <span>4人</span>
-      </label>
+  <section id="screen-list" class="screen active">
+    <div class="card round-list-card">
+      <button id="create-round-btn" type="button" class="round-create-btn">＋ 新規ラウンド作成</button>
+      <div id="rounds-list" class="round-list"></div>
     </div>
-  </div>
-
-  <!-- メンバー入力 -->
-  <div class="card">
-    <div class="card-title">メンバー情報</div>
-    <div id="members-area">
-      <!-- JavaScript で動的生成 -->
+    <div class="list-footer">
+      <button id="list-manage-members-btn" type="button" class="link-btn">メンバー管理</button>
     </div>
-  </div>
+  </section>
 
-  <!-- エラーメッセージ -->
-  <div id="error-msg"></div>
+  <section id="screen-detail" class="screen">
+    <div class="detail-header">
+      <button id="detail-back-btn" type="button" class="back-btn">← 戻る</button>
+      <div class="round-title-wrap">
+        <span id="round-title-display" class="round-title-display">ラウンド</span>
+        <input id="round-title-input" class="round-title-input" type="text" maxlength="60" aria-label="ラウンドタイトル">
+      </div>
+    </div>
 
-  <!-- 操作ボタン -->
-  <div class="action-row">
-    <button id="calc-btn" type="button">計算する</button>
-    <button id="clear-btn" type="button">クリア</button>
-  </div>
-
-  <!-- 結果エリア -->
-  <div id="result-area">
-    <!-- 1人あたり負担額サマリー -->
     <div class="card">
-      <div class="card-title">集計</div>
-      <p class="result-summary">交通費合計：<span id="res-total"></span></p>
-      <p class="result-summary">1人あたり（目安）：<span id="res-per"></span></p>
+      <div class="card-title">人数</div>
+      <div class="count-selector">
+        <label>
+          <input type="radio" name="count" value="3" id="count3">
+          <span>3人</span>
+        </label>
+        <label>
+          <input type="radio" name="count" value="4" id="count4" checked>
+          <span>4人</span>
+        </label>
+      </div>
     </div>
 
-    <!-- 各人の差額 -->
     <div class="card">
-      <div class="card-title">各人の収支</div>
-      <table class="balance-table">
-        <thead>
-          <tr>
-            <th>名前</th>
-            <th>交通費±</th>
-            <th>その他</th>
-            <th>最終差額</th>
-          </tr>
-        </thead>
-        <tbody id="res-balances">
-          <!-- JavaScript で動的生成 -->
-        </tbody>
-      </table>
+      <div class="card-title">メンバー情報</div>
+      <div id="members-area"></div>
     </div>
 
-    <!-- 清算手順 -->
-    <div class="card">
-      <div class="card-title">清算手順</div>
-      <ul class="transactions" id="res-transactions">
-        <!-- JavaScript で動的生成 -->
-      </ul>
+    <div id="error-msg"></div>
+
+    <div class="action-row">
+      <button id="calc-btn" type="button">計算する</button>
+      <button id="clear-btn" type="button">クリア</button>
     </div>
-  </div>
+
+    <div id="result-area">
+      <div class="card">
+        <div class="card-title">集計</div>
+        <p class="result-summary">交通費合計：<span id="res-total"></span></p>
+        <p class="result-summary">1人あたり（目安）：<span id="res-per"></span></p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">各人の収支</div>
+        <table class="balance-table">
+          <thead>
+            <tr>
+              <th>名前</th>
+              <th>交通費±</th>
+              <th>その他</th>
+              <th>最終差額</th>
+            </tr>
+          </thead>
+          <tbody id="res-balances"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">清算手順</div>
+        <ul class="transactions" id="res-transactions"></ul>
+      </div>
+    </div>
+
+    <button id="line-share-btn" class="line-share-btn" type="button">LINE で送る</button>
+
+    <div class="danger-zone">
+      <button id="delete-round-btn" class="danger-btn" type="button">このラウンドを削除</button>
+    </div>
+  </section>
 </div>
 
 <div id="member-modal" class="modal-overlay" aria-hidden="true">
@@ -583,12 +780,27 @@
   </div>
 </div>
 
+<div id="delete-round-modal" class="modal-overlay" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+    <div class="modal-header">
+      <h2 id="delete-modal-title" class="modal-title">ラウンド削除確認</h2>
+    </div>
+    <p>このラウンドを削除します。よろしいですか？</p>
+    <div class="confirm-actions">
+      <button id="delete-modal-cancel" type="button">キャンセル</button>
+      <button id="delete-modal-confirm" type="button">削除する</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
   import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
   import {
     getFirestore,
     collection,
+    query,
+    orderBy,
     doc,
     setDoc,
     deleteDoc,
@@ -596,10 +808,7 @@
     serverTimestamp,
   } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
 
-  // ─── 定数 ───────────────────────────────────────────────
-  // 最小清算単位（円）
   const UNIT = 10;
-  const STORAGE_KEY = 'golfExpense.lastInput';
 
   const firebaseConfig = {
     apiKey: 'AIzaSyBjPwiFnrSDUwO7kzJZ3iqcBZC_gLTJeac',
@@ -610,120 +819,146 @@
     appId: '1:460684791326:web:75b4c752732e003bde680f',
   };
 
-  let memberProfiles = [];
-  let firestoreDb = null;
-  let firebaseReady = false;
+  const appState = {
+    memberProfiles: [],
+    roundsList: [],
+    firestoreDb: null,
+    firebaseReady: false,
+    membersUnsubscribe: null,
+    roundsUnsubscribe: null,
+    roundDetailUnsubscribe: null,
+    currentRoundId: null,
+    currentRoundData: null,
+    titleManuallyEdited: false,
+    localRounds: {},
+    saveTimer: null,
+    isApplyingRound: false,
+    lastCalculated: null,
+    hasCalculated: false,
+  };
 
-  // ─── ユーティリティ ──────────────────────────────────────
-
-  /**
-   * 数値を「1,234円」形式の文字列に変換する
-   * @param {number} n
-   * @returns {string}
-   */
   function fmt(n) {
     return n.toLocaleString('ja-JP') + '円';
   }
 
-  /**
-   * UNIT単位で切り捨てる
-   * @param {number} n
-   * @returns {number}
-   */
   function floorUnit(n) {
     return Math.floor(n / UNIT) * UNIT;
   }
 
+  function ymdToday() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function makeRoundId() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID();
+    }
+    return 'round-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+  }
+
+  function makeDefaultTitle(date) {
+    return `${date} ラウンド`;
+  }
+
+  function makeTitleFromMembers(date, members) {
+    const names = members
+      .map(m => (typeof m.name === 'string' ? m.name.trim() : ''))
+      .filter(Boolean);
+    if (names.length === 0) {
+      return makeDefaultTitle(date);
+    }
+    return `${date} ${names.join('・')}`;
+  }
+
+  function toSafeInt(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return 0;
+    return Math.max(0, Math.floor(n));
+  }
+
+  function withSign(value) {
+    if (value > 0) return '+' + value.toLocaleString('ja-JP');
+    if (value < 0) return '-' + Math.abs(value).toLocaleString('ja-JP');
+    return '0';
+  }
+
+  function currentTitle() {
+    const input = document.getElementById('round-title-input').value.trim();
+    if (input) return input;
+    if (appState.currentRoundData && appState.currentRoundData.date) {
+      return makeDefaultTitle(appState.currentRoundData.date);
+    }
+    return makeDefaultTitle(ymdToday());
+  }
+
+  function normalizeRoundMember(obj) {
+    return {
+      name: typeof obj?.name === 'string' ? obj.name.trim() : '',
+      transit: toSafeInt(obj?.expense),
+      car: toSafeInt(obj?.carPaid),
+      otherPay: toSafeInt(obj?.otherPay),
+      otherRecv: toSafeInt(obj?.otherReceive),
+    };
+  }
+
+  function roundMembersToDocMembers(members) {
+    return members.map(m => ({
+      name: m.name,
+      expense: toSafeInt(m.transit),
+      carPaid: toSafeInt(m.car),
+      otherPay: toSafeInt(m.otherPay),
+      otherReceive: toSafeInt(m.otherRecv),
+    }));
+  }
+
+  function docToRound(id, data) {
+    const date = typeof data.date === 'string' && data.date ? data.date : ymdToday();
+    const members = Array.isArray(data.members)
+      ? data.members.map(normalizeRoundMember)
+      : [];
+    const settlement = Array.isArray(data.settlement)
+      ? data.settlement
+          .map(t => ({
+            from: typeof t?.from === 'string' ? t.from : '',
+            to: typeof t?.to === 'string' ? t.to : '',
+            amount: toSafeInt(t?.amount),
+          }))
+          .filter(t => t.from && t.to)
+      : null;
+
+    return {
+      id,
+      date,
+      title: typeof data.title === 'string' && data.title.trim() ? data.title.trim() : makeDefaultTitle(date),
+      titleManuallyEdited: typeof data.titleManuallyEdited === 'boolean'
+        ? data.titleManuallyEdited
+        : (typeof data.title === 'string' && data.title.trim() && data.title.trim() !== makeDefaultTitle(date)),
+      members,
+      settlement,
+      totalAmount: toSafeInt(data.totalAmount),
+      perPersonAmount: toSafeInt(data.perPersonAmount),
+      createdAtMs: toSafeInt(data.createdAtMs),
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    };
+  }
+
+  function roundSortValue(round) {
+    if (Number.isFinite(round.createdAtMs) && round.createdAtMs > 0) {
+      return round.createdAtMs;
+    }
+    if (round.createdAt && typeof round.createdAt.toMillis === 'function') {
+      return round.createdAt.toMillis();
+    }
+    return 0;
+  }
+
   function profileLabel(profile) {
     return `${profile.name}（前回:${fmt(profile.defaultExpense)}）`;
-  }
-
-  // ─── UI 生成 ─────────────────────────────────────────────
-
-  /**
-   * メンバー入力行をcount人分生成してDOMに反映する
-   * @param {number} count
-   */
-  function buildMemberRows(count, savedMembers = []) {
-    const area = document.getElementById('members-area');
-    area.innerHTML = '';
-
-    for (let i = 0; i < count; i++) {
-      const row = document.createElement('div');
-      row.className = 'member-row';
-      row.innerHTML = `
-        <div class="member-label">${i + 1}人目</div>
-        <!-- 名前 -->
-        <div class="field">
-          <span class="field-label">名前</span>
-          <div class="name-input-wrap">
-            <select class="name-select inp-name-select">
-              <option value="">メンバーを選択</option>
-              ${memberProfiles.map(p => `<option value="${p.id}">${profileLabel(p)}</option>`).join('')}
-              <option value="__new__">＋ 新しいメンバー</option>
-              <option value="__manage__">メンバー管理...</option>
-            </select>
-            <input type="text" class="inp-name" list="member-name-list-${i}" placeholder="名前を入力" autocomplete="off">
-            <datalist id="member-name-list-${i}">
-              ${memberProfiles.map(p => `<option value="${p.name}"></option>`).join('')}
-            </datalist>
-          </div>
-        </div>
-        <!-- 個人交通費（支払いのみ・交通費割り勘対象） -->
-        <div class="field">
-          <span class="field-label">個人交通費</span>
-          <input type="number" class="inp-transit inp-pay" placeholder="0" min="0">
-          <span class="unit">円</span>
-        </div>
-        <!-- 車代立替（支払いのみ・交通費割り勘対象・端数優遇あり） -->
-        <div class="field">
-          <span class="field-label">車代立替</span>
-          <input type="number" class="inp-car inp-pay" placeholder="0" min="0">
-          <span class="unit">円</span>
-        </div>
-        <!-- その他：支払い/受け取りの2列（後乗せ計算） -->
-        <div class="amount-grid" style="margin-top:10px">
-          <div></div>
-          <div class="ag-header ag-header-pay">支払い</div>
-          <div class="ag-header ag-header-recv">受け取り</div>
-          <div class="ag-label">その他</div>
-          <div class="ag-cell"><input type="number" class="inp-other-pay inp-pay" placeholder="0" min="0"><span class="unit">円</span></div>
-          <div class="ag-cell"><input type="number" class="inp-other-recv inp-recv" placeholder="0" min="0"><span class="unit">円</span></div>
-        </div>
-      `;
-      area.appendChild(row);
-
-      const saved = savedMembers[i] || {};
-      row.querySelector('.inp-name').value = typeof saved.name === 'string' ? saved.name : '';
-      row.querySelector('.inp-transit').value = (Number.isFinite(saved.transit) && saved.transit > 0) ? String(saved.transit) : '';
-      row.querySelector('.inp-car').value = (Number.isFinite(saved.car) && saved.car > 0) ? String(saved.car) : '';
-      row.querySelector('.inp-other-pay').value = (Number.isFinite(saved.otherPay) && saved.otherPay > 0) ? String(saved.otherPay) : '';
-      row.querySelector('.inp-other-recv').value = (Number.isFinite(saved.otherRecv) && saved.otherRecv > 0) ? String(saved.otherRecv) : '';
-      const matched = memberProfiles.find(p => p.name === row.querySelector('.inp-name').value.trim());
-      row.querySelector('.inp-name-select').value = matched ? matched.id : '__new__';
-      // LocalStorage 復元時は other が未定義なので、その他欄は空欄で開始される
-    }
-  }
-
-  // ─── 永続化ヘルパー ─────────────────────────────────────
-  // 入力下書き（lastInput）はブラウザのローカル領域（LocalStorage）に保持する。
-  // 名簿（members）は Firestore に保存し、第三者へのデータ送信は行わない。
-
-  function getSelectedCount() {
-    const checked = document.querySelector('input[name="count"]:checked');
-    return checked ? parseInt(checked.value, 10) : 4;
-  }
-
-  function normalizeProfile(obj) {
-    if (!obj || typeof obj !== 'object') return null;
-    if (typeof obj.id !== 'string' || !obj.id) return null;
-    if (typeof obj.name !== 'string') return null;
-    const name = obj.name.trim();
-    if (!name) return null;
-    const defaultExpense = Number.isFinite(obj.defaultExpense)
-      ? Math.max(0, Math.floor(obj.defaultExpense))
-      : 0;
-    return { id: obj.id, name, defaultExpense };
   }
 
   function setSyncStatus(message, type = 'loading') {
@@ -740,86 +975,123 @@
     el.textContent = '';
   }
 
-  async function initFirebaseMembersSync() {
-    setSyncStatus('読み込み中...', 'loading');
+  function showScreen(screen) {
+    document.getElementById('screen-list').classList.toggle('active', screen === 'list');
+    document.getElementById('screen-detail').classList.toggle('active', screen === 'detail');
+  }
 
-    try {
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      firestoreDb = getFirestore(app);
+  function setRouteRound(roundId, mode = 'push') {
+    const nextUrl = new URL(window.location.href);
+    if (roundId) {
+      nextUrl.searchParams.set('round', roundId);
+    } else {
+      nextUrl.searchParams.delete('round');
+    }
 
-      // ユーザーの操作なしで匿名認証し、共有名簿へ接続する
-      await signInAnonymously(auth);
-
-      // rounds コレクションは Phase 4 以降で利用予定。
-      // いまは members コレクションのみリアルタイム同期する。
-      onSnapshot(
-        collection(firestoreDb, 'members'),
-        (snapshot) => {
-          const next = snapshot.docs
-            .map((snap) => {
-              const data = snap.data() || {};
-              return normalizeProfile({
-                id: snap.id,
-                name: typeof data.name === 'string' ? data.name : snap.id,
-                defaultExpense: Number(data.defaultExpense),
-              });
-            })
-            .filter(Boolean)
-            .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
-
-          memberProfiles = next;
-          refreshNameSources();
-          firebaseReady = true;
-          hideSyncStatus();
-        },
-        (error) => {
-          console.error('[Firebase] members 同期エラー:', error);
-          firebaseReady = false;
-          setSyncStatus('クラウド同期に接続できません。オフラインで利用できます。', 'warn');
-        }
-      );
-    } catch (error) {
-      console.error('[Firebase] 初期化エラー:', error);
-      firebaseReady = false;
-      memberProfiles = [];
-      refreshNameSources();
-      setSyncStatus('クラウド同期に接続できません。オフラインで利用できます。', 'warn');
+    if (mode === 'replace') {
+      window.history.replaceState({}, '', nextUrl.toString());
+    } else {
+      window.history.pushState({}, '', nextUrl.toString());
     }
   }
 
-  async function updateProfilesFromMembers(members) {
-    if (!firebaseReady || !firestoreDb) return;
-
-    const tasks = [];
-    members.forEach(m => {
-      const name = m.name.trim();
-      if (!name || name.includes('/')) return;
-      tasks.push(
-        setDoc(
-          doc(firestoreDb, 'members', name),
-          {
-            name,
-            defaultExpense: Math.max(0, Math.floor(m.transit)),
-            updatedAt: serverTimestamp(),
-          },
-          { merge: true }
-        )
-      );
-    });
-
-    if (tasks.length === 0) return;
-    await Promise.all(tasks);
+  function parseRouteRoundId() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('round');
   }
 
-  async function deleteProfile(profile) {
-    memberProfiles = memberProfiles.filter(p => p.id !== profile.id);
-    refreshNameSources();
+  function normalizeProfile(obj) {
+    if (!obj || typeof obj !== 'object') return null;
+    if (typeof obj.id !== 'string' || !obj.id) return null;
+    if (typeof obj.name !== 'string') return null;
+    const name = obj.name.trim();
+    if (!name) return null;
+    return {
+      id: obj.id,
+      name,
+      defaultExpense: toSafeInt(obj.defaultExpense),
+    };
+  }
 
-    if (!firebaseReady || !firestoreDb) return;
-    if (!profile.name || profile.name.includes('/')) return;
+  function getSelectedCount() {
+    const checked = document.querySelector('input[name="count"]:checked');
+    return checked ? parseInt(checked.value, 10) : 4;
+  }
 
-    await deleteDoc(doc(firestoreDb, 'members', profile.name));
+  function collectMembersFromRows() {
+    return Array.from(document.querySelectorAll('.member-row')).map(row => {
+      const val = cls => parseInt(row.querySelector('.' + cls).value || '0', 10);
+      return {
+        name: row.querySelector('.inp-name').value.trim(),
+        transit: toSafeInt(val('inp-transit')),
+        car: toSafeInt(val('inp-car')),
+        otherPay: toSafeInt(val('inp-other-pay')),
+        otherRecv: toSafeInt(val('inp-other-recv')),
+      };
+    });
+  }
+
+  function buildMemberRows(count, savedMembers = []) {
+    const area = document.getElementById('members-area');
+    area.innerHTML = '';
+
+    for (let i = 0; i < count; i++) {
+      const row = document.createElement('div');
+      row.className = 'member-row';
+      row.innerHTML = `
+        <div class="member-label">${i + 1}人目</div>
+        <div class="field">
+          <span class="field-label">名前</span>
+          <div class="name-input-wrap">
+            <select class="name-select inp-name-select">
+              <option value="">メンバーを選択</option>
+              ${appState.memberProfiles.map(p => `<option value="${p.id}">${profileLabel(p)}</option>`).join('')}
+              <option value="__new__">＋ 新しいメンバー</option>
+              <option value="__manage__">メンバー管理...</option>
+            </select>
+            <input type="text" class="inp-name" list="member-name-list-${i}" placeholder="名前を入力" autocomplete="off">
+            <datalist id="member-name-list-${i}">
+              ${appState.memberProfiles.map(p => `<option value="${p.name}"></option>`).join('')}
+            </datalist>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">個人交通費</span>
+          <input type="number" class="inp-transit inp-pay" placeholder="0" min="0">
+          <span class="unit">円</span>
+        </div>
+        <div class="field">
+          <span class="field-label">車代立替</span>
+          <input type="number" class="inp-car inp-pay" placeholder="0" min="0">
+          <span class="unit">円</span>
+        </div>
+        <div class="amount-grid" style="margin-top:10px">
+          <div></div>
+          <div class="ag-header ag-header-pay">支払い</div>
+          <div class="ag-header ag-header-recv">受け取り</div>
+          <div class="ag-label">その他</div>
+          <div class="ag-cell"><input type="number" class="inp-other-pay inp-pay" placeholder="0" min="0"><span class="unit">円</span></div>
+          <div class="ag-cell"><input type="number" class="inp-other-recv inp-recv" placeholder="0" min="0"><span class="unit">円</span></div>
+        </div>
+      `;
+      area.appendChild(row);
+
+      const saved = savedMembers[i] || {};
+      row.querySelector('.inp-name').value = typeof saved.name === 'string' ? saved.name : '';
+      row.querySelector('.inp-transit').value = toSafeInt(saved.transit) > 0 ? String(toSafeInt(saved.transit)) : '';
+      row.querySelector('.inp-car').value = toSafeInt(saved.car) > 0 ? String(toSafeInt(saved.car)) : '';
+      row.querySelector('.inp-other-pay').value = toSafeInt(saved.otherPay) > 0 ? String(toSafeInt(saved.otherPay)) : '';
+      row.querySelector('.inp-other-recv').value = toSafeInt(saved.otherRecv) > 0 ? String(toSafeInt(saved.otherRecv)) : '';
+
+      const matched = appState.memberProfiles.find(p => p.name === row.querySelector('.inp-name').value.trim());
+      row.querySelector('.inp-name-select').value = matched ? matched.id : '__new__';
+    }
+  }
+
+  function refreshNameSources() {
+    const count = getSelectedCount();
+    const snapshot = collectMembersFromRows();
+    buildMemberRows(count, snapshot);
   }
 
   function openMemberManager() {
@@ -838,11 +1110,12 @@
   function renderMemberManager() {
     const list = document.getElementById('member-manage-list');
     list.innerHTML = '';
-    if (memberProfiles.length === 0) {
+    if (appState.memberProfiles.length === 0) {
       list.innerHTML = '<div class="manage-empty">登録されたメンバーはありません</div>';
       return;
     }
-    memberProfiles.forEach(profile => {
+
+    appState.memberProfiles.forEach(profile => {
       const item = document.createElement('div');
       item.className = 'manage-item';
       item.innerHTML = `
@@ -853,238 +1126,99 @@
     });
   }
 
-  function refreshNameSources() {
-    const count = getSelectedCount();
-    const rows = document.querySelectorAll('.member-row');
-    const snapshot = Array.from(rows).map(row => ({
-      name: row.querySelector('.inp-name').value,
-      transit: parseInt(row.querySelector('.inp-transit').value || '0', 10),
-      car: parseInt(row.querySelector('.inp-car').value || '0', 10),
-      otherPay: parseInt(row.querySelector('.inp-other-pay').value || '0', 10),
-      otherRecv: parseInt(row.querySelector('.inp-other-recv').value || '0', 10),
-    }));
-    buildMemberRows(count, snapshot);
-    saveLastInput();
+  function showDeleteRoundModal() {
+    const modal = document.getElementById('delete-round-modal');
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
   }
 
-  function collectPersistMembers() {
-    const rows = document.querySelectorAll('.member-row');
-    return Array.from(rows).map(row => ({
-      name: row.querySelector('.inp-name').value.trim(),
-      transit: parseInt(row.querySelector('.inp-transit').value || '0', 10),
-      car: parseInt(row.querySelector('.inp-car').value || '0', 10),
-    }));
+  function closeDeleteRoundModal() {
+    const modal = document.getElementById('delete-round-modal');
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
   }
 
-  function saveLastInput() {
-    try {
-      const payload = {
-        count: getSelectedCount(),
-        members: collectPersistMembers(),
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    } catch (e) {
-      // 保存に失敗してもアプリを止めない
-    }
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
   }
 
-  function normalizeMember(obj) {
-    if (!obj || typeof obj !== 'object') return { name: '', transit: 0, car: 0 };
-    const transit = Number.isFinite(obj.transit) ? Math.max(0, Math.floor(obj.transit)) : 0;
-    const car = Number.isFinite(obj.car) ? Math.max(0, Math.floor(obj.car)) : 0;
-    return {
-      name: typeof obj.name === 'string' ? obj.name : '',
-      transit,
-      car,
-    };
+  function hideError() {
+    const el = document.getElementById('error-msg');
+    el.textContent = '';
+    el.style.display = 'none';
   }
 
-  function loadLastInput() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return null;
+  function renderRoundsList() {
+    const list = document.getElementById('rounds-list');
+    list.innerHTML = '';
 
-      const parsed = JSON.parse(raw);
-      if (!parsed || typeof parsed !== 'object') return null;
-      if (parsed.count !== 3 && parsed.count !== 4) return null;
-      if (!Array.isArray(parsed.members)) return null;
-
-      const normalized = parsed.members.map(normalizeMember).slice(0, parsed.count);
-      while (normalized.length < parsed.count) {
-        normalized.push({ name: '', transit: 0, car: 0 });
-      }
-      return { count: parsed.count, members: normalized };
-    } catch (e) {
-      // 復元エラー時は初期状態にフォールバック
-      return null;
-    }
-  }
-
-  function clearLastInput() {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (e) {
-      // 削除に失敗してもアプリを止めない
-    }
-  }
-
-  // ─── バリデーション ──────────────────────────────────────
-
-  /**
-   * 入力値を検証してエラーメッセージを返す。問題なければ null を返す
-   * @param {Array<{name:string, transit:number, car:number}>} members
-   * @returns {string|null}
-   */
-  function validate(members) {
-    const numFields = [
-      ['transit',   '個人交通費'],
-      ['car',       '車代立替'],
-      ['otherPay',  'その他（支払い）'],
-      ['otherRecv', 'その他（受け取り）'],
-    ];
-    for (let i = 0; i < members.length; i++) {
-      const m = members[i];
-      if (!m.name) return `${i + 1}人目の名前を入力してください`;
-      for (const [field, label] of numFields) {
-        if (isNaN(m[field]) || m[field] < 0) {
-          return `${m.name} の${label}が不正です（0以上の整数）`;
-        }
-      }
+    if (appState.roundsList.length === 0) {
+      list.innerHTML = '<div class="round-empty">まだラウンドがありません。＋ ボタンから作成してください</div>';
+      return;
     }
 
-    // その他の支払い合計と受け取り合計が一致しているかチェック
-    // 全員のその他が相殺されないと収支が合わないため
-    const sumOtherPay  = members.reduce((s, m) => s + m.otherPay,  0);
-    const sumOtherRecv = members.reduce((s, m) => s + m.otherRecv, 0);
-    if (sumOtherPay !== sumOtherRecv) {
-      return `その他の支払い合計（${fmt(sumOtherPay)}）と受け取り合計（${fmt(sumOtherRecv)}）が一致していません。差額：${fmt(Math.abs(sumOtherPay - sumOtherRecv))}`;
-    }
-
-    return null;
-  }
-
-  // ─── 清算ロジック ─────────────────────────────────────────
-
-  /**
-   * 各メンバーの負担額（UNIT単位）を計算する。
-   * 「非立替者は切り上げ → 立替者が残りを受け取る」方式で
-   * 端数が出た場合に立替者が得になるよう設計している。
-   *
-   * 例: 合計10,100円、4人、立替者1人(AAA)
-   *   exactPer = 10100/4 = 2525
-   *   非立替者の負担 = ceil(2525/10)*10 = 2530
-   *   立替者の負担 = (10100 - 2530*3) / 1 = 2510  ← 20円得
-   *   取引: けんた→AAA 1330, BBB→AAA 1030, CCC→AAA 1930
-   *
-   * @param {Array<{name:string, transit:number, car:number}>} members
-   * @returns {Array<{name:string, paid:number, burden:number, balance:number}>}
-   */
-  function calcBurdens(members) {
-    const n = members.length;
-
-    // ── Phase 1: 交通費・車代の割り勘 ──────────────────────
-    // transit と car は支払いのみ。車代 > 0 の人が端数優遇を受ける
-    const tPaid = members.map(m => m.transit + m.car);
-    const tTotal = tPaid.reduce((s, v) => s + v, 0);
-
-    const numCar    = members.filter(m => m.car > 0).length;
-    const numNonCar = n - numCar;
-
-    let nonCarBurden, carBurden;
-    if (numCar === 0) {
-      // 車代立替者がいない場合: 全員均等割り（UNIT単位切り捨て）
-      nonCarBurden = floorUnit(tTotal / n);
-      carBurden = nonCarBurden;
-    } else {
-      // 非立替者は切り上げ（端数を立替者に有利に配分するため）
-      const exactPer = tTotal / n;
-      nonCarBurden = numNonCar > 0
-        ? Math.ceil(exactPer / UNIT) * UNIT
-        : 0;
-      // 立替者の負担 = 全体 − 非立替者合計をUNIT単位切り捨て
-      const totalCarBurden = tTotal - nonCarBurden * numNonCar;
-      carBurden = floorUnit(totalCarBurden / numCar);
-    }
-
-    // ── Phase 2: その他収支を後乗せ ────────────────────────
-    // 受け取り = プラス（もらえる分）、支払い = マイナス
-    return members.map((m, i) => {
-      const burden   = m.car > 0 ? carBurden : nonCarBurden;
-      const tBalance = tPaid[i] - burden;           // 交通費の過不足
-      const otherNet = m.otherRecv - m.otherPay;    // その他の収支
-      const balance  = tBalance + otherNet;          // 最終差額
-      return { name: m.name, tPaid: tPaid[i], burden, tBalance, otherNet, balance };
+    appState.roundsList.forEach(round => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'round-item';
+      item.setAttribute('data-round-id', round.id);
+      const people = round.members.length || 0;
+      const carLeader = round.members.reduce(
+        (best, member) => {
+          if (member.car > best.car) {
+            return { name: member.name || '未設定', car: member.car };
+          }
+          return best;
+        },
+        { name: '未設定', car: 0 }
+      );
+      item.innerHTML = `
+        <div class="round-item-date">${round.date}</div>
+        <div class="round-item-title">${round.title}</div>
+        <div class="round-item-meta">合計 ${fmt(round.totalAmount)} / ${people}人</div>
+        <div class="round-item-meta">車当番：${carLeader.name}</div>
+      `;
+      list.appendChild(item);
     });
   }
 
-  /**
-   * 差額リストから「誰が誰にいくら払う」取引リストを生成する。
-   * 最大受取者と最大支払者を貪欲にマッチングして取引数を最小化する。
-   *
-   * 取引額はUNIT単位に丸める（1円未満は切り捨て）。
-   *
-   * @param {Array<{name:string, balance:number}>} results
-   * @returns {Array<{from:string, to:string, amount:number}>}
-   */
-  function calcTransactions(results) {
-    // 浮動小数誤差を避けるため整数として保持
-    const balances = results.map(r => ({ name: r.name, balance: r.balance }));
-    const transactions = [];
-
-    // 収束するまで繰り返す
-    while (true) {
-      // 最大受取者（balance最大）
-      const maxReceiver = balances.reduce((a, b) => a.balance > b.balance ? a : b);
-      // 最大支払者（balance最小）
-      const maxPayer = balances.reduce((a, b) => a.balance < b.balance ? a : b);
-
-      // 全員が清算済み（全balanceが0に近い）なら終了
-      if (maxReceiver.balance <= 0 || maxPayer.balance >= 0) break;
-
-      // 今回の取引額 = 2者の絶対値の小さい方、UNIT単位
-      const rawAmount = Math.min(maxReceiver.balance, -maxPayer.balance);
-      const amount = floorUnit(rawAmount);
-
-      // 10円未満しか残っていなければ清算完了とみなす
-      if (amount < UNIT) break;
-
-      transactions.push({ from: maxPayer.name, to: maxReceiver.name, amount });
-
-      maxReceiver.balance -= amount;
-      maxPayer.balance += amount;
-    }
-
-    return transactions;
+  function renderRoundHeader(round) {
+    const title = round && round.title ? round.title : makeDefaultTitle(ymdToday());
+    document.getElementById('round-title-display').textContent = title;
+    document.getElementById('round-title-input').value = title;
   }
 
-  // ─── 結果表示 ─────────────────────────────────────────────
+  function setCountFromMembers(members) {
+    const count = members.length === 3 ? 3 : 4;
+    const target = document.querySelector(`input[name="count"][value="${count}"]`);
+    if (target) {
+      target.checked = true;
+    }
+    return count;
+  }
 
-  /**
-   * 計算結果をDOMに反映して結果エリアを表示する
-   * @param {Array<{name:string, transit:number, car:number}>} members
-   */
-  function showResult(members) {
+  function renderResultFromData(members, settlement = null, totalAmount = null, perPersonAmount = null, doScroll = true) {
     const results = calcBurdens(members);
-    const transactions = calcTransactions(results);
+    const transactions = settlement || calcTransactions(results);
 
-    // 交通費合計（transit + car の合計）
-    const tTotal = members.reduce((sum, m) => sum + m.transit + m.car, 0);
+    const total = Number.isFinite(totalAmount) && totalAmount >= 0
+      ? totalAmount
+      : members.reduce((sum, m) => sum + m.transit + m.car, 0);
+    const per = Number.isFinite(perPersonAmount) && perPersonAmount >= 0
+      ? perPersonAmount
+      : Math.round(total / Math.max(members.length, 1));
 
-    // 交通費合計と1人あたり目安
-    document.getElementById('res-total').textContent = fmt(tTotal);
-    const exactPer = Math.round(tTotal / members.length);
-    document.getElementById('res-per').textContent = fmt(exactPer) + '（10円単位に調整済み）';
+    document.getElementById('res-total').textContent = fmt(total);
+    document.getElementById('res-per').textContent = fmt(per) + '（10円単位に調整済み）';
 
-    // 各人の収支テーブル
     const tbody = document.getElementById('res-balances');
     tbody.innerHTML = '';
     results.forEach(r => {
       const tr = document.createElement('tr');
-      // 交通費±：交通費で払い過ぎ(+)か、払い不足(-)か
       const tCls = r.tBalance >= 0 ? 'positive' : 'negative';
-      // その他：0円のときはスタイルなし
       const oCls = r.otherNet > 0 ? 'positive' : r.otherNet < 0 ? 'negative' : '';
-      // 最終差額
       const bCls = r.balance >= 0 ? 'positive' : 'negative';
       const sign = v => v >= 0 ? '+' : '';
       tr.innerHTML = `
@@ -1096,10 +1230,9 @@
       tbody.appendChild(tr);
     });
 
-    // 清算手順リスト
     const txList = document.getElementById('res-transactions');
     txList.innerHTML = '';
-    if (transactions.length === 0) {
+    if (!transactions || transactions.length === 0) {
       txList.innerHTML = '<li class="no-transactions">清算不要です</li>';
     } else {
       transactions.forEach(tx => {
@@ -1115,177 +1248,781 @@
       });
     }
 
-    // 結果エリアを表示してスクロール
     const resultArea = document.getElementById('result-area');
     resultArea.style.display = 'block';
-    resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (doScroll) {
+      resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    appState.lastCalculated = {
+      members,
+      results,
+      settlement: transactions,
+      totalAmount: total,
+      perPersonAmount: per,
+    };
+    appState.hasCalculated = true;
   }
 
-  // ─── イベントハンドラー ───────────────────────────────────
-
-  /**
-   * 人数ラジオを切り替えたときにメンバー行を再生成する
-   */
-  document.querySelectorAll('input[name="count"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      buildMemberRows(parseInt(radio.value, 10));
-      // 人数を変えたら結果をリセット
-      document.getElementById('result-area').style.display = 'none';
-      hideError();
-      saveLastInput();
-    });
-  });
-
-  document.getElementById('members-area').addEventListener('change', event => {
-    if (!event.target.classList.contains('inp-name-select')) return;
-
-    const row = event.target.closest('.member-row');
-    if (!row) return;
-
-    const selected = event.target.value;
-    const nameInput = row.querySelector('.inp-name');
-    const transitInput = row.querySelector('.inp-transit');
-
-    if (selected === '__manage__') {
-      event.target.value = '__new__';
-      openMemberManager();
-      return;
-    }
-
-    if (selected === '__new__' || selected === '') {
-      nameInput.value = '';
-      nameInput.focus();
-      saveLastInput();
-      return;
-    }
-
-    const profile = memberProfiles.find(p => p.id === selected);
-    if (!profile) return;
-    nameInput.value = profile.name;
-    transitInput.value = String(profile.defaultExpense);
-    saveLastInput();
-  });
-
-  // 永続化対象入力の変更を自動保存する（保存ボタンは作らない）
-  document.getElementById('members-area').addEventListener('input', event => {
-    if (
-      event.target.classList.contains('inp-name') ||
-      event.target.classList.contains('inp-transit') ||
-      event.target.classList.contains('inp-car')
-    ) {
-      saveLastInput();
-    }
-  });
-
-  /**
-   * 計算ボタン押下時の処理
-   */
-  document.getElementById('calc-btn').addEventListener('click', () => {
-    hideError();
-
-    // 各メンバー行から入力値を収集する
-    const rows = document.querySelectorAll('.member-row');
-    const members = Array.from(rows).map(row => {
-      // クラス名でその行内の input を取得して整数化するヘルパー
-      const getVal = cls => parseInt(row.querySelector('.' + cls).value || '0', 10);
-      return {
-        name:     row.querySelector('.inp-name').value.trim(),
-        transit:  getVal('inp-transit'),
-        car:      getVal('inp-car'),
-        otherPay: getVal('inp-other-pay'),
-        otherRecv: getVal('inp-other-recv'),
-      };
-    });
-
-    // バリデーション
-    const errMsg = validate(members);
-    if (errMsg) {
-      showError(errMsg);
-      return;
-    }
-
-    updateProfilesFromMembers(members).catch(error => {
-      console.error('[Firebase] メンバー更新エラー:', error);
-      showError('クラウド保存に失敗しました。計算結果は表示できます。');
-    });
-    refreshNameSources();
-    saveLastInput();
-    showResult(members);
-  });
-
-  document.getElementById('clear-btn').addEventListener('click', () => {
-    if (!window.confirm('入力内容をリセットします。よろしいですか？')) {
-      return;
-    }
-
-    clearLastInput();
-    document.getElementById('count4').checked = true;
-    buildMemberRows(4);
-    hideError();
+  function hideResultArea() {
     document.getElementById('result-area').style.display = 'none';
-  });
+    document.getElementById('res-balances').innerHTML = '';
+    document.getElementById('res-transactions').innerHTML = '';
+    document.getElementById('res-total').textContent = '';
+    document.getElementById('res-per').textContent = '';
+    appState.hasCalculated = false;
+    appState.lastCalculated = null;
+  }
 
-  document.getElementById('member-modal-close').addEventListener('click', () => {
-    closeMemberManager();
-  });
+  function validate(members) {
+    const numFields = [
+      ['transit', '個人交通費'],
+      ['car', '車代立替'],
+      ['otherPay', 'その他（支払い）'],
+      ['otherRecv', 'その他（受け取り）'],
+    ];
 
-  document.getElementById('member-modal').addEventListener('click', event => {
-    if (event.target.id === 'member-modal') {
-      closeMemberManager();
+    for (let i = 0; i < members.length; i++) {
+      const m = members[i];
+      if (!m.name) return `${i + 1}人目の名前を入力してください`;
+      for (const [field, label] of numFields) {
+        if (!Number.isFinite(m[field]) || m[field] < 0) {
+          return `${m.name} の${label}が不正です（0以上の整数）`;
+        }
+      }
     }
-  });
 
-  document.getElementById('member-manage-list').addEventListener('click', event => {
-    if (!event.target.classList.contains('manage-delete')) return;
-    const id = event.target.getAttribute('data-id');
-    const profile = memberProfiles.find(p => p.id === id);
-    if (!profile) return;
+    const sumOtherPay = members.reduce((s, m) => s + m.otherPay, 0);
+    const sumOtherRecv = members.reduce((s, m) => s + m.otherRecv, 0);
+    if (sumOtherPay !== sumOtherRecv) {
+      return `その他の支払い合計（${fmt(sumOtherPay)}）と受け取り合計（${fmt(sumOtherRecv)}）が一致していません。差額：${fmt(Math.abs(sumOtherPay - sumOtherRecv))}`;
+    }
 
-    if (!window.confirm(`「${profile.name}」を名簿から削除します。よろしいですか？`)) {
+    return null;
+  }
+
+  function calcBurdens(members) {
+    const n = members.length;
+    const tPaid = members.map(m => m.transit + m.car);
+    const tTotal = tPaid.reduce((s, v) => s + v, 0);
+    const numCar = members.filter(m => m.car > 0).length;
+    const numNonCar = n - numCar;
+
+    let nonCarBurden;
+    let carBurden;
+    if (numCar === 0) {
+      nonCarBurden = floorUnit(tTotal / n);
+      carBurden = nonCarBurden;
+    } else {
+      const exactPer = tTotal / n;
+      nonCarBurden = numNonCar > 0 ? Math.ceil(exactPer / UNIT) * UNIT : 0;
+      const totalCarBurden = tTotal - nonCarBurden * numNonCar;
+      carBurden = floorUnit(totalCarBurden / numCar);
+    }
+
+    return members.map((m, i) => {
+      const burden = m.car > 0 ? carBurden : nonCarBurden;
+      const tBalance = tPaid[i] - burden;
+      const otherNet = m.otherRecv - m.otherPay;
+      const balance = tBalance + otherNet;
+      return { name: m.name, tPaid: tPaid[i], burden, tBalance, otherNet, balance };
+    });
+  }
+
+  function calcTransactions(results) {
+    const balances = results.map(r => ({ name: r.name, balance: r.balance }));
+    const transactions = [];
+
+    while (true) {
+      const maxReceiver = balances.reduce((a, b) => (a.balance > b.balance ? a : b));
+      const maxPayer = balances.reduce((a, b) => (a.balance < b.balance ? a : b));
+      if (maxReceiver.balance <= 0 || maxPayer.balance >= 0) break;
+
+      const rawAmount = Math.min(maxReceiver.balance, -maxPayer.balance);
+      const amount = floorUnit(rawAmount);
+      if (amount < UNIT) break;
+
+      transactions.push({ from: maxPayer.name, to: maxReceiver.name, amount });
+      maxReceiver.balance -= amount;
+      maxPayer.balance += amount;
+    }
+
+    return transactions;
+  }
+
+  async function updateProfilesFromMembers(members) {
+    if (!appState.firebaseReady || !appState.firestoreDb) return;
+
+    const tasks = [];
+    members.forEach(m => {
+      const name = m.name.trim();
+      if (!name || name.includes('/')) return;
+      tasks.push(
+        setDoc(
+          doc(appState.firestoreDb, 'members', name),
+          {
+            name,
+            defaultExpense: toSafeInt(m.transit),
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true }
+        )
+      );
+    });
+
+    await Promise.all(tasks);
+  }
+
+  async function deleteProfile(profile) {
+    appState.memberProfiles = appState.memberProfiles.filter(p => p.id !== profile.id);
+    refreshNameSources();
+
+    if (!appState.firebaseReady || !appState.firestoreDb) return;
+    if (!profile.name || profile.name.includes('/')) return;
+    await deleteDoc(doc(appState.firestoreDb, 'members', profile.name));
+  }
+
+  function upsertLocalRound(roundData) {
+    appState.localRounds[roundData.id] = { ...roundData };
+  }
+
+  async function createNewRound() {
+    const date = ymdToday();
+    const roundId = makeRoundId();
+    const createdAtMs = Date.now();
+    const payload = {
+      date,
+      title: makeDefaultTitle(date),
+      titleManuallyEdited: false,
+      members: [],
+      settlement: [],
+      totalAmount: 0,
+      perPersonAmount: 0,
+      createdAtMs,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+
+    if (appState.firebaseReady && appState.firestoreDb) {
+      await setDoc(doc(appState.firestoreDb, 'rounds', roundId), payload);
+      openRoundDetail(roundId, true);
       return;
     }
 
-    deleteProfile(profile)
-      .then(() => {
-        renderMemberManager();
-      })
-      .catch(error => {
-        console.error('[Firebase] メンバー削除エラー:', error);
-        showError('メンバー削除に失敗しました。通信状態を確認してください。');
+    const localRound = {
+      id: roundId,
+      date,
+      title: payload.title,
+      titleManuallyEdited: false,
+      members: [],
+      settlement: [],
+      totalAmount: 0,
+      perPersonAmount: 0,
+      createdAtMs,
+    };
+    upsertLocalRound(localRound);
+    openRoundDetail(roundId, true);
+    setSyncStatus('クラウド未接続のため、このラウンドは端末内のみです。', 'warn');
+  }
+
+  function applyRoundToUI(round) {
+    appState.isApplyingRound = true;
+    appState.currentRoundData = round;
+    appState.titleManuallyEdited = !!round.titleManuallyEdited;
+    renderRoundHeader(round);
+
+    const members = Array.isArray(round.members) && round.members.length > 0
+      ? round.members
+      : [
+          { name: '', transit: 0, car: 0, otherPay: 0, otherRecv: 0 },
+          { name: '', transit: 0, car: 0, otherPay: 0, otherRecv: 0 },
+          { name: '', transit: 0, car: 0, otherPay: 0, otherRecv: 0 },
+          { name: '', transit: 0, car: 0, otherPay: 0, otherRecv: 0 },
+        ];
+
+    const count = setCountFromMembers(members);
+    buildMemberRows(count, members.slice(0, count));
+    hideError();
+
+    if (round.settlement) {
+      renderResultFromData(
+        members.slice(0, count),
+        round.settlement,
+        round.totalAmount,
+        round.perPersonAmount,
+        false
+      );
+    } else {
+      hideResultArea();
+    }
+
+    appState.isApplyingRound = false;
+  }
+
+  function unsubscribeRoundDetail() {
+    if (appState.roundDetailUnsubscribe) {
+      appState.roundDetailUnsubscribe();
+      appState.roundDetailUnsubscribe = null;
+    }
+  }
+
+  function subscribeRoundDetail(roundId) {
+    unsubscribeRoundDetail();
+
+    if (appState.localRounds[roundId]) {
+      applyRoundToUI(appState.localRounds[roundId]);
+      return;
+    }
+
+    if (!appState.firebaseReady || !appState.firestoreDb) {
+      hideResultArea();
+      buildMemberRows(4);
+      return;
+    }
+
+    appState.roundDetailUnsubscribe = onSnapshot(
+      doc(appState.firestoreDb, 'rounds', roundId),
+      snap => {
+        if (!snap.exists()) {
+          showError('ラウンドが見つかりません。');
+          showScreen('list');
+          setRouteRound('', 'replace');
+          return;
+        }
+        const round = docToRound(snap.id, snap.data() || {});
+        appState.currentRoundData = round;
+        // 入力中は再描画を抑止し、カーソル位置が飛ばないようにする。
+        if (appState.currentRoundId === round.id && isEditingRoundForm()) {
+          return;
+        }
+        applyRoundToUI(round);
+      },
+      error => {
+        console.error('[Firebase] ラウンド詳細取得エラー:', error);
+        showError('ラウンド取得に失敗しました。通信状態を確認してください。');
+      }
+    );
+  }
+
+  function openRoundDetail(roundId, pushState = true) {
+    appState.currentRoundId = roundId;
+    showScreen('detail');
+    subscribeRoundDetail(roundId);
+    setRouteRound(roundId, pushState ? 'push' : 'replace');
+  }
+
+  function openRoundList(pushState = true) {
+    unsubscribeRoundDetail();
+    appState.currentRoundId = null;
+    appState.currentRoundData = null;
+    hideError();
+    showScreen('list');
+    if (pushState) {
+      setRouteRound('', 'push');
+    }
+  }
+
+  function isEditingRoundForm() {
+    const active = document.activeElement;
+    if (!active) return false;
+    if (active.id === 'round-title-input') return true;
+    if (active.closest('#members-area')) return true;
+    return false;
+  }
+
+  function sanitizeMembersForRound() {
+    return collectMembersFromRows().slice(0, getSelectedCount());
+  }
+
+  function scheduleRoundAutosave() {
+    if (appState.isApplyingRound || !appState.currentRoundId) return;
+    if (appState.saveTimer) {
+      clearTimeout(appState.saveTimer);
+    }
+    appState.saveTimer = setTimeout(() => {
+      saveCurrentRoundDraft().catch(error => {
+        console.error('[Firebase] ラウンド自動保存エラー:', error);
       });
-  });
-
-  // ─── エラー表示ヘルパー ───────────────────────────────────
-
-  function showError(msg) {
-    const el = document.getElementById('error-msg');
-    el.textContent = msg;
-    el.style.display = 'block';
+    }, 400);
   }
 
-  function hideError() {
-    const el = document.getElementById('error-msg');
-    el.style.display = 'none';
-    el.textContent = '';
+  async function saveCurrentRoundDraft() {
+    if (!appState.currentRoundId) return;
+    const members = sanitizeMembersForRound();
+    const title = currentTitle();
+    const date = appState.currentRoundData?.date || ymdToday();
+
+    const nextRound = {
+      id: appState.currentRoundId,
+      date,
+      title,
+      titleManuallyEdited: appState.titleManuallyEdited,
+      members,
+      settlement: appState.currentRoundData?.settlement || null,
+      totalAmount: appState.currentRoundData?.totalAmount || 0,
+      perPersonAmount: appState.currentRoundData?.perPersonAmount || 0,
+    };
+    appState.currentRoundData = nextRound;
+
+    if (appState.localRounds[appState.currentRoundId] || !appState.firebaseReady || !appState.firestoreDb) {
+      upsertLocalRound(nextRound);
+      return;
+    }
+
+    await setDoc(
+      doc(appState.firestoreDb, 'rounds', appState.currentRoundId),
+      {
+        date,
+        title,
+        titleManuallyEdited: appState.titleManuallyEdited,
+        members: roundMembersToDocMembers(members),
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
   }
 
-  // ─── 初期化 ──────────────────────────────────────────────
-  // ページ読み込み時に保存データを復元し、なければデフォルト4人で開始する
-  const restored = loadLastInput();
-  if (restored) {
-    const radio = document.querySelector(`input[name="count"][value="${restored.count}"]`);
-    if (radio) radio.checked = true;
-    buildMemberRows(restored.count, restored.members);
-  } else {
-    buildMemberRows(4);
+  async function saveCalculationToRound(members, settlement, totalAmount, perPersonAmount) {
+    if (!appState.currentRoundId) return;
+
+    const title = currentTitle();
+    const date = appState.currentRoundData?.date || ymdToday();
+    const merged = {
+      id: appState.currentRoundId,
+      date,
+      title,
+      titleManuallyEdited: appState.titleManuallyEdited,
+      members,
+      settlement,
+      totalAmount,
+      perPersonAmount,
+    };
+    appState.currentRoundData = merged;
+
+    if (appState.localRounds[appState.currentRoundId] || !appState.firebaseReady || !appState.firestoreDb) {
+      upsertLocalRound(merged);
+      return;
+    }
+
+    await setDoc(
+      doc(appState.firestoreDb, 'rounds', appState.currentRoundId),
+      {
+        date,
+        title,
+        titleManuallyEdited: appState.titleManuallyEdited,
+        members: roundMembersToDocMembers(members),
+        settlement,
+        totalAmount,
+        perPersonAmount,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
   }
 
-  // 名簿は Firestore から同期する。失敗時も計算機能は継続する。
-  initFirebaseMembersSync();
+  async function deleteCurrentRound() {
+    const roundId = appState.currentRoundId;
+    if (!roundId) return;
 
-  // ─── Service Worker 登録（PWA オフライン対応） ───────────────
-  // file:// で直接開いた場合は登録しない（https: または http: のときのみ登録）
-  // データはブラウザのローカル領域のみに保持され、外部送信は一切しない。
+    if (appState.localRounds[roundId]) {
+      delete appState.localRounds[roundId];
+      closeDeleteRoundModal();
+      openRoundList(true);
+      return;
+    }
+
+    if (!appState.firebaseReady || !appState.firestoreDb) {
+      showError('クラウド未接続のため削除できません。');
+      return;
+    }
+
+    await deleteDoc(doc(appState.firestoreDb, 'rounds', roundId));
+    closeDeleteRoundModal();
+    openRoundList(true);
+  }
+
+  function buildLineShareText() {
+    if (!appState.lastCalculated) return '';
+
+    const title = currentTitle();
+    const members = appState.lastCalculated.members;
+    const settlement = appState.lastCalculated.settlement || [];
+    const totalAmount = appState.lastCalculated.totalAmount;
+    const perPersonAmount = appState.lastCalculated.perPersonAmount;
+
+    const maxNameLen = members.reduce((m, x) => Math.max(m, x.name.length), 0);
+    const lines = [];
+    lines.push(`【${title} 精算】`);
+    lines.push('');
+    lines.push('■ 各人の負担');
+
+    members.forEach(m => {
+      const padded = m.name.padEnd(maxNameLen, ' ');
+      const traffic = (m.transit + m.car).toLocaleString('ja-JP');
+      const other = withSign(m.otherRecv - m.otherPay);
+      lines.push(`${padded}: 交通費 ${traffic}円、その他 ${other}円`);
+    });
+
+    lines.push('');
+    lines.push(`合計: ${totalAmount.toLocaleString('ja-JP')}円（1人あたり ${perPersonAmount.toLocaleString('ja-JP')}円）`);
+    lines.push('');
+    lines.push('■ 清算');
+    if (settlement.length === 0) {
+      lines.push('清算不要です');
+    } else {
+      settlement.forEach(tx => {
+        lines.push(`${tx.from} → ${tx.to}: ${tx.amount.toLocaleString('ja-JP')}円`);
+      });
+    }
+
+    lines.push('');
+    lines.push('ゴルフ割り勘アプリ');
+    lines.push('https://livingkenta.github.io/golf-expense/');
+
+    const text = lines.join('\n');
+    if (text.length > 900) {
+      console.warn('[LINE] 共有テキストが長い可能性があります。文字数:', text.length);
+    }
+    return text;
+  }
+
+  function openLineShare() {
+    if (!appState.hasCalculated || !appState.lastCalculated) {
+      window.alert('先に計算してください');
+      return;
+    }
+    const text = buildLineShareText();
+    const encoded = encodeURIComponent(text);
+    const url = `https://line.me/R/msg/text/?${encoded}`;
+    window.location.href = url;
+  }
+
+  function subscribeMembers() {
+    if (!appState.firestoreDb) return;
+    if (appState.membersUnsubscribe) appState.membersUnsubscribe();
+
+    appState.membersUnsubscribe = onSnapshot(
+      collection(appState.firestoreDb, 'members'),
+      snapshot => {
+        appState.memberProfiles = snapshot.docs
+          .map(snap => {
+            const data = snap.data() || {};
+            return normalizeProfile({
+              id: snap.id,
+              name: typeof data.name === 'string' ? data.name : snap.id,
+              defaultExpense: data.defaultExpense,
+            });
+          })
+          .filter(Boolean)
+          .sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+
+        if (document.querySelector('.member-row')) {
+          refreshNameSources();
+        }
+      },
+      error => {
+        console.error('[Firebase] members 同期エラー:', error);
+      }
+    );
+  }
+
+  function subscribeRoundsList() {
+    if (!appState.firestoreDb) return;
+    if (appState.roundsUnsubscribe) appState.roundsUnsubscribe();
+
+    appState.roundsUnsubscribe = onSnapshot(
+      query(collection(appState.firestoreDb, 'rounds'), orderBy('createdAt', 'asc')),
+      snapshot => {
+        appState.roundsList = snapshot.docs
+          .map(snap => docToRound(snap.id, snap.data() || {}))
+          .sort((a, b) => {
+            const diff = roundSortValue(a) - roundSortValue(b);
+            if (diff !== 0) return diff;
+            return a.id.localeCompare(b.id, 'ja');
+          });
+        renderRoundsList();
+      },
+      error => {
+        console.error('[Firebase] rounds 一覧同期エラー:', error);
+        setSyncStatus('クラウド同期に接続できません。オフラインで利用できます。', 'warn');
+      }
+    );
+  }
+
+  async function initFirebase() {
+    setSyncStatus('読み込み中...', 'loading');
+
+    try {
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      appState.firestoreDb = getFirestore(app);
+
+      // データは Firestore に保存されるが、第三者へ送信されない。
+      await signInAnonymously(auth);
+
+      appState.firebaseReady = true;
+      subscribeMembers();
+      subscribeRoundsList();
+      if (appState.currentRoundId && !appState.localRounds[appState.currentRoundId]) {
+        subscribeRoundDetail(appState.currentRoundId);
+      }
+      hideSyncStatus();
+    } catch (error) {
+      console.error('[Firebase] 初期化エラー:', error);
+      appState.firebaseReady = false;
+      appState.memberProfiles = [];
+      appState.roundsList = [];
+      renderRoundsList();
+      setSyncStatus('クラウド同期に接続できません。オフラインで利用できます。', 'warn');
+    }
+  }
+
+  function beginTitleEdit() {
+    const disp = document.getElementById('round-title-display');
+    const inp = document.getElementById('round-title-input');
+    inp.style.display = 'block';
+    disp.style.display = 'none';
+    inp.focus();
+    inp.select();
+  }
+
+  function commitTitleEdit() {
+    const disp = document.getElementById('round-title-display');
+    const inp = document.getElementById('round-title-input');
+    const title = inp.value.trim() || makeDefaultTitle(appState.currentRoundData?.date || ymdToday());
+    inp.value = title;
+    disp.textContent = title;
+    appState.titleManuallyEdited = true;
+    if (appState.currentRoundData) {
+      appState.currentRoundData.title = title;
+      appState.currentRoundData.titleManuallyEdited = true;
+    }
+    disp.style.display = 'block';
+    inp.style.display = 'none';
+    scheduleRoundAutosave();
+  }
+
+  function bindEvents() {
+    document.getElementById('create-round-btn').addEventListener('click', () => {
+      createNewRound().catch(error => {
+        console.error('[Round] 新規作成エラー:', error);
+        setSyncStatus('新規ラウンド作成に失敗しました。通信状態を確認してください。', 'warn');
+      });
+    });
+
+    document.getElementById('rounds-list').addEventListener('click', event => {
+      const button = event.target.closest('.round-item');
+      if (!button) return;
+      const roundId = button.getAttribute('data-round-id');
+      if (!roundId) return;
+      openRoundDetail(roundId, true);
+    });
+
+    document.getElementById('detail-back-btn').addEventListener('click', () => {
+      openRoundList(true);
+    });
+
+    document.getElementById('list-manage-members-btn').addEventListener('click', () => {
+      openMemberManager();
+    });
+
+    document.getElementById('round-title-display').addEventListener('click', beginTitleEdit);
+    document.getElementById('round-title-input').addEventListener('blur', commitTitleEdit);
+    document.getElementById('round-title-input').addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        commitTitleEdit();
+      }
+      if (event.key === 'Escape') {
+        const disp = document.getElementById('round-title-display');
+        const inp = document.getElementById('round-title-input');
+        inp.value = disp.textContent;
+        inp.style.display = 'none';
+        disp.style.display = 'block';
+      }
+    });
+
+    document.querySelectorAll('input[name="count"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        buildMemberRows(parseInt(radio.value, 10));
+        hideResultArea();
+        hideError();
+        scheduleRoundAutosave();
+      });
+    });
+
+    document.getElementById('members-area').addEventListener('change', event => {
+      if (!event.target.classList.contains('inp-name-select')) return;
+
+      const row = event.target.closest('.member-row');
+      if (!row) return;
+
+      const selected = event.target.value;
+      const nameInput = row.querySelector('.inp-name');
+      const transitInput = row.querySelector('.inp-transit');
+
+      if (selected === '__manage__') {
+        event.target.value = '__new__';
+        openMemberManager();
+        return;
+      }
+
+      if (selected === '__new__' || selected === '') {
+        nameInput.value = '';
+        nameInput.focus();
+        hideResultArea();
+        scheduleRoundAutosave();
+        return;
+      }
+
+      const profile = appState.memberProfiles.find(p => p.id === selected);
+      if (!profile) return;
+      nameInput.value = profile.name;
+      transitInput.value = String(profile.defaultExpense);
+      hideResultArea();
+      scheduleRoundAutosave();
+    });
+
+    document.getElementById('members-area').addEventListener('input', event => {
+      if (
+        event.target.classList.contains('inp-name') ||
+        event.target.classList.contains('inp-transit') ||
+        event.target.classList.contains('inp-car') ||
+        event.target.classList.contains('inp-other-pay') ||
+        event.target.classList.contains('inp-other-recv')
+      ) {
+        hideResultArea();
+        scheduleRoundAutosave();
+      }
+    });
+
+    document.getElementById('calc-btn').addEventListener('click', () => {
+      hideError();
+      const members = sanitizeMembersForRound();
+      const errMsg = validate(members);
+      if (errMsg) {
+        showError(errMsg);
+        return;
+      }
+
+      if (!appState.titleManuallyEdited) {
+        const date = appState.currentRoundData?.date || ymdToday();
+        const autoTitle = makeTitleFromMembers(date, members);
+        document.getElementById('round-title-display').textContent = autoTitle;
+        document.getElementById('round-title-input').value = autoTitle;
+        if (appState.currentRoundData) {
+          appState.currentRoundData.title = autoTitle;
+          appState.currentRoundData.titleManuallyEdited = false;
+        }
+      }
+
+      const results = calcBurdens(members);
+      const settlement = calcTransactions(results);
+      const totalAmount = members.reduce((sum, m) => sum + m.transit + m.car, 0);
+      const perPersonAmount = Math.round(totalAmount / members.length);
+
+      renderResultFromData(members, settlement, totalAmount, perPersonAmount, true);
+
+      updateProfilesFromMembers(members).catch(error => {
+        console.error('[Firebase] メンバー更新エラー:', error);
+      });
+
+      saveCalculationToRound(members, settlement, totalAmount, perPersonAmount).catch(error => {
+        console.error('[Firebase] ラウンド保存エラー:', error);
+        showError('ラウンド保存に失敗しました。通信状態を確認してください。');
+      });
+    });
+
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      if (!window.confirm('入力内容をリセットします。よろしいですか？')) {
+        return;
+      }
+      buildMemberRows(getSelectedCount());
+      hideResultArea();
+      hideError();
+      scheduleRoundAutosave();
+    });
+
+    document.getElementById('line-share-btn').addEventListener('click', () => {
+      openLineShare();
+    });
+
+    document.getElementById('delete-round-btn').addEventListener('click', () => {
+      showDeleteRoundModal();
+    });
+
+    document.getElementById('delete-modal-cancel').addEventListener('click', () => {
+      closeDeleteRoundModal();
+    });
+
+    document.getElementById('delete-modal-confirm').addEventListener('click', () => {
+      deleteCurrentRound().catch(error => {
+        console.error('[Firebase] ラウンド削除エラー:', error);
+        showError('ラウンド削除に失敗しました。通信状態を確認してください。');
+      });
+    });
+
+    document.getElementById('delete-round-modal').addEventListener('click', event => {
+      if (event.target.id === 'delete-round-modal') {
+        closeDeleteRoundModal();
+      }
+    });
+
+    document.getElementById('member-modal-close').addEventListener('click', () => {
+      closeMemberManager();
+    });
+
+    document.getElementById('member-modal').addEventListener('click', event => {
+      if (event.target.id === 'member-modal') {
+        closeMemberManager();
+      }
+    });
+
+    document.getElementById('member-manage-list').addEventListener('click', event => {
+      if (!event.target.classList.contains('manage-delete')) return;
+      const id = event.target.getAttribute('data-id');
+      const profile = appState.memberProfiles.find(p => p.id === id);
+      if (!profile) return;
+
+      if (!window.confirm(`「${profile.name}」を名簿から削除します。よろしいですか？`)) {
+        return;
+      }
+
+      deleteProfile(profile)
+        .then(() => {
+          renderMemberManager();
+          scheduleRoundAutosave();
+        })
+        .catch(error => {
+          console.error('[Firebase] メンバー削除エラー:', error);
+          showError('メンバー削除に失敗しました。通信状態を確認してください。');
+        });
+    });
+
+    window.addEventListener('popstate', () => {
+      const roundId = parseRouteRoundId();
+      if (roundId) {
+        openRoundDetail(roundId, false);
+      } else {
+        openRoundList(false);
+      }
+    });
+  }
+
+  function bootRoute() {
+    const roundId = parseRouteRoundId();
+    if (roundId) {
+      openRoundDetail(roundId, false);
+      return;
+    }
+    renderRoundsList();
+    openRoundList(false);
+  }
+
+  bindEvents();
+  bootRoute();
+  initFirebase();
+
   if ('serviceWorker' in navigator &&
       (location.protocol === 'https:' || location.protocol === 'http:')) {
     window.addEventListener('load', () => {
