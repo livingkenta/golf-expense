@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ゴルフ交通費割り勘</title>
+  <style>
+    /* ベースリセットとスマホ向け基本スタイル */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+                   "Noto Sans JP", sans-serif;
+      font-size: 16px;
+      background: #f5f7fa;
+      color: #333;
+      /* スマホ縦画面で中央寄せ */
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h1 {
+      font-size: 1.3rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #2d6a4f;
+    }
+
+    /* カードコンポーネント */
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #666;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* 人数選択ラジオ */
+    .count-selector {
+      display: flex;
+      gap: 12px;
+    }
+
+    .count-selector label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    /* 選択中の人数ラジオをハイライト */
+    .count-selector input[type="radio"]:checked + span {
+      color: #2d6a4f;
+      font-weight: bold;
+    }
+
+    .count-selector label:has(input:checked) {
+      border-color: #2d6a4f;
+      background: #e8f5e9;
+    }
+
+    .count-selector input[type="radio"] {
+      accent-color: #2d6a4f;
+    }
+
+    /* メンバー入力エリア */
+    #members-area {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .member-row {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .member-label {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #2d6a4f;
+      margin-bottom: 8px;
+    }
+
+    /* 各入力フィールド */
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    .field-label {
+      font-size: 0.82rem;
+      color: #666;
+      white-space: nowrap;
+      width: 100px;
+      flex-shrink: 0;
+    }
+
+    .name-input-wrap {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .name-select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      background: #fff;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .name-select:focus {
+      outline: none;
+      border-color: #2d6a4f;
+      box-shadow: 0 0 0 2px rgba(45, 106, 79, 0.2);
+    }
+
+    .field input[type="text"],
+    .field input[type="number"] {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      /* スマホでズームしないよう16px以上を保つ */
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: #2d6a4f;
+      box-shadow: 0 0 0 2px rgba(45, 106, 79, 0.2);
+    }
+
+    .unit {
+      font-size: 0.9rem;
+      color: #666;
+      white-space: nowrap;
+    }
+
+    /* 支払い・受け取り 2列グリッド */
+    .amount-grid {
+      display: grid;
+      /* ラベル列 | 支払い列 | 受け取り列 */
+      grid-template-columns: 5.8em 1fr 1fr;
+      gap: 5px 6px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .ag-header {
+      font-size: 0.78rem;
+      font-weight: bold;
+      text-align: center;
+      padding-bottom: 3px;
+      border-bottom: 2px solid;
+    }
+
+    /* 支払いヘッダーは赤、受け取りヘッダーは緑 */
+    .ag-header-pay  { color: #c0392b; border-color: #c0392b; }
+    .ag-header-recv { color: #2d6a4f; border-color: #2d6a4f; }
+
+    .ag-label {
+      font-size: 0.8rem;
+      color: #555;
+      padding-right: 2px;
+    }
+
+    .ag-cell {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .ag-cell input[type="number"] {
+      width: 100%;
+      min-width: 0;
+      padding: 6px 6px;
+      border: 1.5px solid;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .ag-cell .unit {
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    /* 支払い欄：薄い赤（.field 内でも .ag-cell 内でも共通） */
+    input.inp-pay {
+      border-color: #ffb3b3 !important;
+      background: #fff8f8;
+    }
+    input.inp-pay:focus {
+      border-color: #c0392b !important;
+      box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.15);
+      outline: none;
+    }
+
+    /* 受け取り欄：薄い緑 */
+    input.inp-recv {
+      border-color: #a8d5b5 !important;
+      background: #f5fdf7;
+    }
+    input.inp-recv:focus {
+      border-color: #2d6a4f !important;
+      box-shadow: 0 0 0 2px rgba(45, 106, 79, 0.15);
+      outline: none;
+    }
+
+    /* 計算ボタン */
+    #calc-btn {
+      background: #2d6a4f;
+      color: #fff;
+      transition: background 0.2s;
+    }
+
+    #calc-btn:active {
+      background: #1b4332;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .action-row button {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #clear-btn {
+      background: #6c757d;
+      color: #fff;
+    }
+
+    #clear-btn:active {
+      background: #555e66;
+    }
+
+    /* エラーメッセージ */
+    #error-msg {
+      display: none;
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      color: #856404;
+      margin-bottom: 16px;
+    }
+
+    /* 結果エリア（計算前は非表示） */
+    #result-area {
+      display: none;
+    }
+
+    .result-summary {
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      color: #444;
+    }
+
+    .result-summary span {
+      font-weight: bold;
+      color: #2d6a4f;
+    }
+
+    /* 各人の差額テーブル */
+    .balance-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .balance-table th {
+      text-align: left;
+      color: #888;
+      font-weight: normal;
+      padding: 4px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .balance-table td {
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .balance-table td:last-child {
+      text-align: right;
+    }
+
+    /* 受取＝緑、支払＝赤でわかりやすく */
+    .positive { color: #2d6a4f; font-weight: bold; }
+    .negative { color: #c0392b; font-weight: bold; }
+
+    /* 清算手順リスト */
+    .transactions {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .transaction-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+
+    .transaction-arrow {
+      color: #888;
+      margin: 0 6px;
+    }
+
+    .transaction-amount {
+      font-weight: bold;
+      color: #c0392b;
+    }
+
+    /* 「取引なし」メッセージ */
+    .no-transactions {
+      text-align: center;
+      color: #888;
+      font-size: 0.9rem;
+      padding: 12px 0;
+    }
+
+    /* メンバー管理モーダル */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #2d6a4f;
+    }
+
+    .modal-close {
+      border: none;
+      background: transparent;
+      font-size: 1.2rem;
+      color: #666;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .member-manage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+
+    .manage-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.9rem;
+      background: #fafafa;
+    }
+
+    .manage-delete {
+      border: none;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #fff;
+      background: #c0392b;
+      cursor: pointer;
+    }
+
+    .manage-empty {
+      text-align: center;
+      color: #888;
+      font-size: 0.9rem;
+      padding: 12px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>⛳ ゴルフ交通費割り勘</h1>
+
+  <!-- 人数選択 -->
+  <div class="card">
+    <div class="card-title">人数</div>
+    <div class="count-selector">
+      <label>
+        <input type="radio" name="count" value="3" id="count3">
+        <span>3人</span>
+      </label>
+      <label>
+        <input type="radio" name="count" value="4" id="count4" checked>
+        <span>4人</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- メンバー入力 -->
+  <div class="card">
+    <div class="card-title">メンバー情報</div>
+    <div id="members-area">
+      <!-- JavaScript で動的生成 -->
+    </div>
+  </div>
+
+  <!-- エラーメッセージ -->
+  <div id="error-msg"></div>
+
+  <!-- 操作ボタン -->
+  <div class="action-row">
+    <button id="calc-btn" type="button">計算する</button>
+    <button id="clear-btn" type="button">クリア</button>
+  </div>
+
+  <!-- 結果エリア -->
+  <div id="result-area">
+    <!-- 1人あたり負担額サマリー -->
+    <div class="card">
+      <div class="card-title">集計</div>
+      <p class="result-summary">交通費合計：<span id="res-total"></span></p>
+      <p class="result-summary">1人あたり（目安）：<span id="res-per"></span></p>
+    </div>
+
+    <!-- 各人の差額 -->
+    <div class="card">
+      <div class="card-title">各人の収支</div>
+      <table class="balance-table">
+        <thead>
+          <tr>
+            <th>名前</th>
+            <th>交通費±</th>
+            <th>その他</th>
+            <th>最終差額</th>
+          </tr>
+        </thead>
+        <tbody id="res-balances">
+          <!-- JavaScript で動的生成 -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 清算手順 -->
+    <div class="card">
+      <div class="card-title">清算手順</div>
+      <ul class="transactions" id="res-transactions">
+        <!-- JavaScript で動的生成 -->
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div id="member-modal" class="modal-overlay" aria-hidden="true">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="member-modal-title">
+    <div class="modal-header">
+      <h2 id="member-modal-title" class="modal-title">メンバー管理</h2>
+      <button type="button" id="member-modal-close" class="modal-close" aria-label="閉じる">×</button>
+    </div>
+    <div id="member-manage-list" class="member-manage-list"></div>
+  </div>
+</div>
+
+<script>
+  // ─── 定数 ───────────────────────────────────────────────
+  // 最小清算単位（円）
+  const UNIT = 10;
+  const STORAGE_KEY = 'golfExpense.lastInput';
+  const MEMBERS_KEY = 'golfExpense.members';
+
+  let memberProfiles = [];
+
+  // ─── ユーティリティ ──────────────────────────────────────
+
+  /**
+   * 数値を「1,234円」形式の文字列に変換する
+   * @param {number} n
+   * @returns {string}
+   */
+  function fmt(n) {
+    return n.toLocaleString('ja-JP') + '円';
+  }
+
+  /**
+   * UNIT単位で切り捨てる
+   * @param {number} n
+   * @returns {number}
+   */
+  function floorUnit(n) {
+    return Math.floor(n / UNIT) * UNIT;
+  }
+
+  function createProfileId() {
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID();
+    }
+    return 'm-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+  }
+
+  function profileLabel(profile) {
+    return `${profile.name}（前回:${fmt(profile.defaultExpense)}）`;
+  }
+
+  // ─── UI 生成 ─────────────────────────────────────────────
+
+  /**
+   * メンバー入力行をcount人分生成してDOMに反映する
+   * @param {number} count
+   */
+  function buildMemberRows(count, savedMembers = []) {
+    const area = document.getElementById('members-area');
+    area.innerHTML = '';
+
+    for (let i = 0; i < count; i++) {
+      const row = document.createElement('div');
+      row.className = 'member-row';
+      row.innerHTML = `
+        <div class="member-label">${i + 1}人目</div>
+        <!-- 名前 -->
+        <div class="field">
+          <span class="field-label">名前</span>
+          <div class="name-input-wrap">
+            <select class="name-select inp-name-select">
+              <option value="">メンバーを選択</option>
+              ${memberProfiles.map(p => `<option value="${p.id}">${profileLabel(p)}</option>`).join('')}
+              <option value="__new__">＋ 新しいメンバー</option>
+              <option value="__manage__">メンバー管理...</option>
+            </select>
+            <input type="text" class="inp-name" list="member-name-list-${i}" placeholder="例：けんた" autocomplete="off">
+            <datalist id="member-name-list-${i}">
+              ${memberProfiles.map(p => `<option value="${p.name}"></option>`).join('')}
+            </datalist>
+          </div>
+        </div>
+        <!-- 個人交通費（支払いのみ・交通費割り勘対象） -->
+        <div class="field">
+          <span class="field-label">個人交通費</span>
+          <input type="number" class="inp-transit inp-pay" placeholder="0" min="0">
+          <span class="unit">円</span>
+        </div>
+        <!-- 車代立替（支払いのみ・交通費割り勘対象・端数優遇あり） -->
+        <div class="field">
+          <span class="field-label">車代立替</span>
+          <input type="number" class="inp-car inp-pay" placeholder="0" min="0">
+          <span class="unit">円</span>
+        </div>
+        <!-- その他：支払い/受け取りの2列（後乗せ計算） -->
+        <div class="amount-grid" style="margin-top:10px">
+          <div></div>
+          <div class="ag-header ag-header-pay">支払い</div>
+          <div class="ag-header ag-header-recv">受け取り</div>
+          <div class="ag-label">その他</div>
+          <div class="ag-cell"><input type="number" class="inp-other-pay inp-pay" placeholder="0" min="0"><span class="unit">円</span></div>
+          <div class="ag-cell"><input type="number" class="inp-other-recv inp-recv" placeholder="0" min="0"><span class="unit">円</span></div>
+        </div>
+      `;
+      area.appendChild(row);
+
+      const saved = savedMembers[i] || {};
+      row.querySelector('.inp-name').value = typeof saved.name === 'string' ? saved.name : '';
+      row.querySelector('.inp-transit').value = Number.isFinite(saved.transit) ? String(saved.transit) : '';
+      row.querySelector('.inp-car').value = Number.isFinite(saved.car) ? String(saved.car) : '';
+      row.querySelector('.inp-other-pay').value = Number.isFinite(saved.otherPay) ? String(saved.otherPay) : '';
+      row.querySelector('.inp-other-recv').value = Number.isFinite(saved.otherRecv) ? String(saved.otherRecv) : '';
+      const matched = memberProfiles.find(p => p.name === row.querySelector('.inp-name').value.trim());
+      row.querySelector('.inp-name-select').value = matched ? matched.id : '__new__';
+      // LocalStorage 復元時は other が未定義なので、その他欄は空欄で開始される
+    }
+  }
+
+  // ─── 永続化ヘルパー ─────────────────────────────────────
+  // 保存データはブラウザのローカル領域（LocalStorage）にのみ保持され、外部送信しない。
+
+  function getSelectedCount() {
+    const checked = document.querySelector('input[name="count"]:checked');
+    return checked ? parseInt(checked.value, 10) : 4;
+  }
+
+  function normalizeProfile(obj) {
+    if (!obj || typeof obj !== 'object') return null;
+    if (typeof obj.id !== 'string' || !obj.id) return null;
+    if (typeof obj.name !== 'string') return null;
+    const name = obj.name.trim();
+    if (!name) return null;
+    const defaultExpense = Number.isFinite(obj.defaultExpense)
+      ? Math.max(0, Math.floor(obj.defaultExpense))
+      : 0;
+    return { id: obj.id, name, defaultExpense };
+  }
+
+  // プロファイル名簿は LocalStorage にのみ保存し、外部送信しない。
+  function loadMemberProfiles() {
+    try {
+      const raw = localStorage.getItem(MEMBERS_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return parsed.map(normalizeProfile).filter(Boolean);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveMemberProfiles() {
+    try {
+      localStorage.setItem(MEMBERS_KEY, JSON.stringify(memberProfiles));
+    } catch (e) {
+      // 保存に失敗してもアプリを止めない
+    }
+  }
+
+  function updateProfilesFromMembers(members) {
+    const next = [...memberProfiles];
+    members.forEach(m => {
+      const name = m.name.trim();
+      if (!name) return;
+      const idx = next.findIndex(p => p.name === name);
+      if (idx >= 0) {
+        next[idx] = {
+          ...next[idx],
+          defaultExpense: Math.max(0, Math.floor(m.transit)),
+        };
+      } else {
+        next.push({
+          id: createProfileId(),
+          name,
+          defaultExpense: Math.max(0, Math.floor(m.transit)),
+        });
+      }
+    });
+    memberProfiles = next;
+    saveMemberProfiles();
+  }
+
+  function openMemberManager() {
+    renderMemberManager();
+    const modal = document.getElementById('member-modal');
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeMemberManager() {
+    const modal = document.getElementById('member-modal');
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  function renderMemberManager() {
+    const list = document.getElementById('member-manage-list');
+    list.innerHTML = '';
+    if (memberProfiles.length === 0) {
+      list.innerHTML = '<div class="manage-empty">登録されたメンバーはありません</div>';
+      return;
+    }
+    memberProfiles.forEach(profile => {
+      const item = document.createElement('div');
+      item.className = 'manage-item';
+      item.innerHTML = `
+        <span>${profileLabel(profile)}</span>
+        <button type="button" class="manage-delete" data-id="${profile.id}">削除</button>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function refreshNameSources() {
+    const count = getSelectedCount();
+    const rows = document.querySelectorAll('.member-row');
+    const snapshot = Array.from(rows).map(row => ({
+      name: row.querySelector('.inp-name').value,
+      transit: parseInt(row.querySelector('.inp-transit').value || '0', 10),
+      car: parseInt(row.querySelector('.inp-car').value || '0', 10),
+      otherPay: parseInt(row.querySelector('.inp-other-pay').value || '0', 10),
+      otherRecv: parseInt(row.querySelector('.inp-other-recv').value || '0', 10),
+    }));
+    buildMemberRows(count, snapshot);
+    saveLastInput();
+  }
+
+  function collectPersistMembers() {
+    const rows = document.querySelectorAll('.member-row');
+    return Array.from(rows).map(row => ({
+      name: row.querySelector('.inp-name').value.trim(),
+      transit: parseInt(row.querySelector('.inp-transit').value || '0', 10),
+      car: parseInt(row.querySelector('.inp-car').value || '0', 10),
+    }));
+  }
+
+  function saveLastInput() {
+    try {
+      const payload = {
+        count: getSelectedCount(),
+        members: collectPersistMembers(),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch (e) {
+      // 保存に失敗してもアプリを止めない
+    }
+  }
+
+  function normalizeMember(obj) {
+    if (!obj || typeof obj !== 'object') return { name: '', transit: 0, car: 0 };
+    const transit = Number.isFinite(obj.transit) ? Math.max(0, Math.floor(obj.transit)) : 0;
+    const car = Number.isFinite(obj.car) ? Math.max(0, Math.floor(obj.car)) : 0;
+    return {
+      name: typeof obj.name === 'string' ? obj.name : '',
+      transit,
+      car,
+    };
+  }
+
+  function loadLastInput() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object') return null;
+      if (parsed.count !== 3 && parsed.count !== 4) return null;
+      if (!Array.isArray(parsed.members)) return null;
+
+      const normalized = parsed.members.map(normalizeMember).slice(0, parsed.count);
+      while (normalized.length < parsed.count) {
+        normalized.push({ name: '', transit: 0, car: 0 });
+      }
+      return { count: parsed.count, members: normalized };
+    } catch (e) {
+      // 復元エラー時は初期状態にフォールバック
+      return null;
+    }
+  }
+
+  function clearLastInput() {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      // 削除に失敗してもアプリを止めない
+    }
+  }
+
+  // ─── バリデーション ──────────────────────────────────────
+
+  /**
+   * 入力値を検証してエラーメッセージを返す。問題なければ null を返す
+   * @param {Array<{name:string, transit:number, car:number}>} members
+   * @returns {string|null}
+   */
+  function validate(members) {
+    const numFields = [
+      ['transit',   '個人交通費'],
+      ['car',       '車代立替'],
+      ['otherPay',  'その他（支払い）'],
+      ['otherRecv', 'その他（受け取り）'],
+    ];
+    for (let i = 0; i < members.length; i++) {
+      const m = members[i];
+      if (!m.name) return `${i + 1}人目の名前を入力してください`;
+      for (const [field, label] of numFields) {
+        if (isNaN(m[field]) || m[field] < 0) {
+          return `${m.name} の${label}が不正です（0以上の整数）`;
+        }
+      }
+    }
+
+    // その他の支払い合計と受け取り合計が一致しているかチェック
+    // 全員のその他が相殺されないと収支が合わないため
+    const sumOtherPay  = members.reduce((s, m) => s + m.otherPay,  0);
+    const sumOtherRecv = members.reduce((s, m) => s + m.otherRecv, 0);
+    if (sumOtherPay !== sumOtherRecv) {
+      return `その他の支払い合計（${fmt(sumOtherPay)}）と受け取り合計（${fmt(sumOtherRecv)}）が一致していません。差額：${fmt(Math.abs(sumOtherPay - sumOtherRecv))}`;
+    }
+
+    return null;
+  }
+
+  // ─── 清算ロジック ─────────────────────────────────────────
+
+  /**
+   * 各メンバーの負担額（UNIT単位）を計算する。
+   * 「非立替者は切り上げ → 立替者が残りを受け取る」方式で
+   * 端数が出た場合に立替者が得になるよう設計している。
+   *
+   * 例: 合計10,100円、4人、立替者1人(AAA)
+   *   exactPer = 10100/4 = 2525
+   *   非立替者の負担 = ceil(2525/10)*10 = 2530
+   *   立替者の負担 = (10100 - 2530*3) / 1 = 2510  ← 20円得
+   *   取引: けんた→AAA 1330, BBB→AAA 1030, CCC→AAA 1930
+   *
+   * @param {Array<{name:string, transit:number, car:number}>} members
+   * @returns {Array<{name:string, paid:number, burden:number, balance:number}>}
+   */
+  function calcBurdens(members) {
+    const n = members.length;
+
+    // ── Phase 1: 交通費・車代の割り勘 ──────────────────────
+    // transit と car は支払いのみ。車代 > 0 の人が端数優遇を受ける
+    const tPaid = members.map(m => m.transit + m.car);
+    const tTotal = tPaid.reduce((s, v) => s + v, 0);
+
+    const numCar    = members.filter(m => m.car > 0).length;
+    const numNonCar = n - numCar;
+
+    let nonCarBurden, carBurden;
+    if (numCar === 0) {
+      // 車代立替者がいない場合: 全員均等割り（UNIT単位切り捨て）
+      nonCarBurden = floorUnit(tTotal / n);
+      carBurden = nonCarBurden;
+    } else {
+      // 非立替者は切り上げ（端数を立替者に有利に配分するため）
+      const exactPer = tTotal / n;
+      nonCarBurden = numNonCar > 0
+        ? Math.ceil(exactPer / UNIT) * UNIT
+        : 0;
+      // 立替者の負担 = 全体 − 非立替者合計をUNIT単位切り捨て
+      const totalCarBurden = tTotal - nonCarBurden * numNonCar;
+      carBurden = floorUnit(totalCarBurden / numCar);
+    }
+
+    // ── Phase 2: その他収支を後乗せ ────────────────────────
+    // 受け取り = プラス（もらえる分）、支払い = マイナス
+    return members.map((m, i) => {
+      const burden   = m.car > 0 ? carBurden : nonCarBurden;
+      const tBalance = tPaid[i] - burden;           // 交通費の過不足
+      const otherNet = m.otherRecv - m.otherPay;    // その他の収支
+      const balance  = tBalance + otherNet;          // 最終差額
+      return { name: m.name, tPaid: tPaid[i], burden, tBalance, otherNet, balance };
+    });
+  }
+
+  /**
+   * 差額リストから「誰が誰にいくら払う」取引リストを生成する。
+   * 最大受取者と最大支払者を貪欲にマッチングして取引数を最小化する。
+   *
+   * 取引額はUNIT単位に丸める（1円未満は切り捨て）。
+   *
+   * @param {Array<{name:string, balance:number}>} results
+   * @returns {Array<{from:string, to:string, amount:number}>}
+   */
+  function calcTransactions(results) {
+    // 浮動小数誤差を避けるため整数として保持
+    const balances = results.map(r => ({ name: r.name, balance: r.balance }));
+    const transactions = [];
+
+    // 収束するまで繰り返す
+    while (true) {
+      // 最大受取者（balance最大）
+      const maxReceiver = balances.reduce((a, b) => a.balance > b.balance ? a : b);
+      // 最大支払者（balance最小）
+      const maxPayer = balances.reduce((a, b) => a.balance < b.balance ? a : b);
+
+      // 全員が清算済み（全balanceが0に近い）なら終了
+      if (maxReceiver.balance <= 0 || maxPayer.balance >= 0) break;
+
+      // 今回の取引額 = 2者の絶対値の小さい方、UNIT単位
+      const rawAmount = Math.min(maxReceiver.balance, -maxPayer.balance);
+      const amount = floorUnit(rawAmount);
+
+      // 10円未満しか残っていなければ清算完了とみなす
+      if (amount < UNIT) break;
+
+      transactions.push({ from: maxPayer.name, to: maxReceiver.name, amount });
+
+      maxReceiver.balance -= amount;
+      maxPayer.balance += amount;
+    }
+
+    return transactions;
+  }
+
+  // ─── 結果表示 ─────────────────────────────────────────────
+
+  /**
+   * 計算結果をDOMに反映して結果エリアを表示する
+   * @param {Array<{name:string, transit:number, car:number}>} members
+   */
+  function showResult(members) {
+    const results = calcBurdens(members);
+    const transactions = calcTransactions(results);
+
+    // 交通費合計（transit + car の合計）
+    const tTotal = members.reduce((sum, m) => sum + m.transit + m.car, 0);
+
+    // 交通費合計と1人あたり目安
+    document.getElementById('res-total').textContent = fmt(tTotal);
+    const exactPer = Math.round(tTotal / members.length);
+    document.getElementById('res-per').textContent = fmt(exactPer) + '（10円単位に調整済み）';
+
+    // 各人の収支テーブル
+    const tbody = document.getElementById('res-balances');
+    tbody.innerHTML = '';
+    results.forEach(r => {
+      const tr = document.createElement('tr');
+      // 交通費±：交通費で払い過ぎ(+)か、払い不足(-)か
+      const tCls = r.tBalance >= 0 ? 'positive' : 'negative';
+      // その他：0円のときはスタイルなし
+      const oCls = r.otherNet > 0 ? 'positive' : r.otherNet < 0 ? 'negative' : '';
+      // 最終差額
+      const bCls = r.balance >= 0 ? 'positive' : 'negative';
+      const sign = v => v >= 0 ? '+' : '';
+      tr.innerHTML = `
+        <td>${r.name}</td>
+        <td class="${tCls}">${sign(r.tBalance)}${r.tBalance.toLocaleString('ja-JP')}円</td>
+        <td class="${oCls}">${sign(r.otherNet)}${r.otherNet.toLocaleString('ja-JP')}円</td>
+        <td class="${bCls}">${sign(r.balance)}${r.balance.toLocaleString('ja-JP')}円</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // 清算手順リスト
+    const txList = document.getElementById('res-transactions');
+    txList.innerHTML = '';
+    if (transactions.length === 0) {
+      txList.innerHTML = '<li class="no-transactions">清算不要です</li>';
+    } else {
+      transactions.forEach(tx => {
+        const li = document.createElement('li');
+        li.className = 'transaction-item';
+        li.innerHTML = `
+          <span>${tx.from}</span>
+          <span class="transaction-arrow">→</span>
+          <span>${tx.to}</span>
+          <span class="transaction-amount">${fmt(tx.amount)}</span>
+        `;
+        txList.appendChild(li);
+      });
+    }
+
+    // 結果エリアを表示してスクロール
+    const resultArea = document.getElementById('result-area');
+    resultArea.style.display = 'block';
+    resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ─── イベントハンドラー ───────────────────────────────────
+
+  /**
+   * 人数ラジオを切り替えたときにメンバー行を再生成する
+   */
+  document.querySelectorAll('input[name="count"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      buildMemberRows(parseInt(radio.value, 10));
+      // 人数を変えたら結果をリセット
+      document.getElementById('result-area').style.display = 'none';
+      hideError();
+      saveLastInput();
+    });
+  });
+
+  document.getElementById('members-area').addEventListener('change', event => {
+    if (!event.target.classList.contains('inp-name-select')) return;
+
+    const row = event.target.closest('.member-row');
+    if (!row) return;
+
+    const selected = event.target.value;
+    const nameInput = row.querySelector('.inp-name');
+    const transitInput = row.querySelector('.inp-transit');
+
+    if (selected === '__manage__') {
+      event.target.value = '__new__';
+      openMemberManager();
+      return;
+    }
+
+    if (selected === '__new__' || selected === '') {
+      nameInput.value = '';
+      nameInput.focus();
+      saveLastInput();
+      return;
+    }
+
+    const profile = memberProfiles.find(p => p.id === selected);
+    if (!profile) return;
+    nameInput.value = profile.name;
+    transitInput.value = String(profile.defaultExpense);
+    saveLastInput();
+  });
+
+  // 永続化対象入力の変更を自動保存する（保存ボタンは作らない）
+  document.getElementById('members-area').addEventListener('input', event => {
+    if (
+      event.target.classList.contains('inp-name') ||
+      event.target.classList.contains('inp-transit') ||
+      event.target.classList.contains('inp-car')
+    ) {
+      saveLastInput();
+    }
+  });
+
+  /**
+   * 計算ボタン押下時の処理
+   */
+  document.getElementById('calc-btn').addEventListener('click', () => {
+    hideError();
+
+    // 各メンバー行から入力値を収集する
+    const rows = document.querySelectorAll('.member-row');
+    const members = Array.from(rows).map(row => {
+      // クラス名でその行内の input を取得して整数化するヘルパー
+      const getVal = cls => parseInt(row.querySelector('.' + cls).value || '0', 10);
+      return {
+        name:     row.querySelector('.inp-name').value.trim(),
+        transit:  getVal('inp-transit'),
+        car:      getVal('inp-car'),
+        otherPay: getVal('inp-other-pay'),
+        otherRecv: getVal('inp-other-recv'),
+      };
+    });
+
+    // バリデーション
+    const errMsg = validate(members);
+    if (errMsg) {
+      showError(errMsg);
+      return;
+    }
+
+    updateProfilesFromMembers(members);
+    refreshNameSources();
+    saveLastInput();
+    showResult(members);
+  });
+
+  document.getElementById('clear-btn').addEventListener('click', () => {
+    if (!window.confirm('入力内容をリセットします。よろしいですか？')) {
+      return;
+    }
+
+    clearLastInput();
+    document.getElementById('count4').checked = true;
+    buildMemberRows(4);
+    hideError();
+    document.getElementById('result-area').style.display = 'none';
+  });
+
+  document.getElementById('member-modal-close').addEventListener('click', () => {
+    closeMemberManager();
+  });
+
+  document.getElementById('member-modal').addEventListener('click', event => {
+    if (event.target.id === 'member-modal') {
+      closeMemberManager();
+    }
+  });
+
+  document.getElementById('member-manage-list').addEventListener('click', event => {
+    if (!event.target.classList.contains('manage-delete')) return;
+    const id = event.target.getAttribute('data-id');
+    const profile = memberProfiles.find(p => p.id === id);
+    if (!profile) return;
+
+    if (!window.confirm(`「${profile.name}」を名簿から削除します。よろしいですか？`)) {
+      return;
+    }
+
+    memberProfiles = memberProfiles.filter(p => p.id !== id);
+    saveMemberProfiles();
+    renderMemberManager();
+    refreshNameSources();
+  });
+
+  // ─── エラー表示ヘルパー ───────────────────────────────────
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideError() {
+    const el = document.getElementById('error-msg');
+    el.style.display = 'none';
+    el.textContent = '';
+  }
+
+  // ─── 初期化 ──────────────────────────────────────────────
+  memberProfiles = loadMemberProfiles();
+
+  // ページ読み込み時に保存データを復元し、なければデフォルト4人で開始する
+  const restored = loadLastInput();
+  if (restored) {
+    const radio = document.querySelector(`input[name="count"][value="${restored.count}"]`);
+    if (radio) radio.checked = true;
+    buildMemberRows(restored.count, restored.members);
+  } else {
+    buildMemberRows(4);
+  }
+</script>
+</body>
+</html>
