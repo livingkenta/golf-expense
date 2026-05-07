@@ -1731,14 +1731,14 @@
     if (appState.roundsUnsubscribe) appState.roundsUnsubscribe();
 
     appState.roundsUnsubscribe = onSnapshot(
-      query(collection(appState.firestoreDb, 'rounds'), orderBy('createdAt', 'asc')),
+      query(collection(appState.firestoreDb, 'rounds'), orderBy('createdAt', 'desc')),
       snapshot => {
         appState.roundsList = snapshot.docs
           .map(snap => docToRound(snap.id, snap.data() || {}))
           .sort((a, b) => {
-            const diff = roundSortValue(a) - roundSortValue(b);
+            const diff = roundSortValue(b) - roundSortValue(a);
             if (diff !== 0) return diff;
-            return a.id.localeCompare(b.id, 'ja');
+            return b.id.localeCompare(a.id, 'ja');
           });
         renderRoundsList();
       },
